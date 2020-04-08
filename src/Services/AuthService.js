@@ -1,5 +1,3 @@
-import React from 'react';
-
 import AsyncStorage from '@react-native-community/async-storage';
 
 import api from './Api';
@@ -11,7 +9,7 @@ const AuthService = {
 
     try {
       // busca o usuario e senha no github
-      const {data} = await api.get('/user', {
+      const data = await api.get('/user', {
         auth: {
           username: user,
           password,
