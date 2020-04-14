@@ -38,5 +38,7 @@ module.exports = {
     "react-hooks/exhaustive-deps": "warn",
     "default-case":"off",
     "prefer-object-spread": "off",
+    "no-undef": "off",
+    "consistent-return": "off"
   },
 };

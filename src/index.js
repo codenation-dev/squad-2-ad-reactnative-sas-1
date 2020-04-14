@@ -9,7 +9,7 @@ import './Config/Reactotron';
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 export default function App() {
-  const [logged, setLogged] = React.useState(true);
+  const [logged, setLogged] = React.useState(false);
   const login = () => setLogged(!logged);
 
   React.useEffect(() => {
