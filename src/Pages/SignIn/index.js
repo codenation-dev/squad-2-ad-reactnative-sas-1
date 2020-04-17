@@ -25,7 +25,7 @@ import backgroundImage from '../../Assets/Image/background.png';
 
 export default function SignIn({login}) {
   const submitForm = (data) => {
-    const teste = AuthService.login(data.user, data.password)
+    const authentication = AuthService.login(data.user, data.password)
       .then((user) => {
         if (user) {
           login();
@@ -44,7 +44,7 @@ export default function SignIn({login}) {
         console.log(err);
       });
 
-    console.log(teste);
+    console.log(authentication);
   };
 
   const {register, handleSubmit, setValue, errors} = useForm();
