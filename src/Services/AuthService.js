@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 
-import api from './Api';
+import {api} from './Api';
 
 const AuthService = {
   async login(user, password) {

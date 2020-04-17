@@ -3,7 +3,7 @@ import React from 'react';
 import SplashScreen from 'react-native-splash-screen';
 import AsyncStorage from '@react-native-community/async-storage';
 
-import {StatusBar, YellowBox} from 'react-native';
+import {StatusBar, YellowBox, ActivityIndicator} from 'react-native';
 
 import Routes from './Routes';
 import SignIn from './Pages/SignIn';
@@ -13,17 +13,25 @@ import './Config/Reactotron';
 YellowBox.ignoreWarnings(['Remote debugger']);
 
 export default function App() {
-  const [userData, setUserData] = React.useState([]);
+  const [logged, setLogged] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    async function fetchData() {
-      const data = await AsyncStorage.getItem('user_profile');
-      setUserData(JSON.parse(data));
+    async function isLogged() {
+      const user_profile = await AsyncStorage.getItem('user_profile');
+
+      if (user_profile !== null) {
+        setLogged(true);
+      } else {
+        setLogged(false);
+      }
+      setLoading(false);
     }
-    fetchData();
+    isLogged();
   }, []);
 
-  const [logged, setLogged] = React.useState(!!userData);
+  console.log('login ', logged);
+
   const login = () => setLogged(!logged);
 
   React.useEffect(() => {
@@ -31,15 +39,27 @@ export default function App() {
   }, []);
 
   function ActualContext() {
-    return logged ? (
-      <Routes />
-    ) : (
-      <SignIn
-        login={() => {
-          login();
-        }}
-      />
-    );
+    if (loading) {
+      return (
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={{flex: 1, justifyContent: 'center', alignSelf: 'center'}}
+        />
+      );
+    }
+    if (!loading && logged) {
+      return <Routes />;
+    }
+    if (!loading && !logged) {
+      return (
+        <SignIn
+          login={() => {
+            login();
+          }}
+        />
+      );
+    }
   }
   return (
     <>

@@ -39,6 +39,8 @@ module.exports = {
     "default-case":"off",
     "prefer-object-spread": "off",
     "no-undef": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "react/prop-types": 'off',
+    "no-debugger": "off"
   },
 };
