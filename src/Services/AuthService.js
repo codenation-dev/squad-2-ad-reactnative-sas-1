@@ -17,7 +17,7 @@ const AuthService = {
       });
 
       // grava os dados obtidos na localstorage como user_profile
-      await AsyncStorage.setItem('user_profile', JSON.stringify(data));
+      await AsyncStorage.setItem('user_profile', JSON.stringify(data.data));
 
       return data;
     } catch (err) {

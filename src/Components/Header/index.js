@@ -9,7 +9,7 @@ import {
   ProfileImage,
 } from './styles';
 
-export default function Header({children, bgColor}) {
+export default function Header({children, bgColor, profile_image}) {
   return (
     <Container>
       <HeaderArea bgColor={bgColor}>
@@ -17,7 +17,9 @@ export default function Header({children, bgColor}) {
         <Profile>
           <ProfileImage
             source={{
-              uri: 'https://api.adorable.io/avatars/60/abott@adorable.png',
+              uri:
+                profile_image ||
+                'https://api.adorable.io/avatars/60/abott@adorable.png',
             }}
           />
         </Profile>

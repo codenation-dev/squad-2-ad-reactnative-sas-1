@@ -1,8 +1,10 @@
 import React from 'react';
-import {View, Text} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
-import {title} from '../../Styles/Typography';
+import AppContainer from '../../Components/AppContainer';
+import Header from '../../Components/Header';
+import HeaderTitle from '../../Components/HeaderTitle';
+import HeaderSubtitle from '../../Components/HeaderSubtitle';
 
 export default function QrCode() {
   // exemplo de busca de dados na storage com hooks
@@ -16,10 +18,16 @@ export default function QrCode() {
     fetchData();
   }, []);
 
+  console.log('user - Data', userData);
+
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text style={title}> QrCode </Text>
-      <Text>{userData.url}</Text>
-    </View>
+    <AppContainer>
+      <Header profile_image={userData.avatar_url}>
+        <HeaderTitle>{userData.login}</HeaderTitle>
+        <HeaderSubtitle>
+          Exibindo o qr code para compartilhar seu perfil com outros devs
+        </HeaderSubtitle>
+      </Header>
+    </AppContainer>
   );
 }
