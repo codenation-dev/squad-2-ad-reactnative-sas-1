@@ -9,12 +9,17 @@ import {
   ProfileImage,
 } from './styles';
 
-export default function Header({children, bgColor, profile_image}) {
+export default function Header({
+  children,
+  bgColor,
+  profile_image,
+  onPressImage,
+}) {
   return (
     <Container>
       <HeaderArea bgColor={bgColor}>
         <HeaderContent>{children}</HeaderContent>
-        <Profile>
+        <Profile onPress={onPressImage}>
           <ProfileImage
             source={{
               uri:

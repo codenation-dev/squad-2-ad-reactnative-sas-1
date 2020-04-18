@@ -1,4 +1,5 @@
 import styled, {css} from 'styled-components/native';
+import {RectButton} from 'react-native-gesture-handler';
 import {fullWitdh} from '../../Styles/Sizes';
 
 export const Container = styled.View`
@@ -20,15 +21,16 @@ export const NavigatorContainer = styled.View`
   align-items: center;
   justify-content: center;
   elevation: 2;
+  border-radius: 20px;
 `;
-export const NavigatorItem = styled.TouchableOpacity`
+export const NavigatorItem = styled(RectButton)`
   flex: 1;
   height: 44px;
   background: ${(props) => (props.active ? '#F0F1FF' : '#fff')};
   align-items: center;
   justify-content: center;
   flex-direction: row;
-
+  border-radius: 20px;
   ${(props) =>
     props.first &&
     css`
@@ -51,13 +53,13 @@ export const NavigatorContent = styled.Text`
   font-size: 14px;
   font-family: 'Raleway-Regular';
 `;
+export const StarredContainer = styled.View``;
 
-export const StarredContainer = styled.TouchableOpacity`
+export const StarredItem = styled.TouchableOpacity`
   background: #fff;
   padding: 8px 15px 8px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   elevation: 2;
-
   background: ${(props) => (props.active ? '#F0F1FF' : '#fff')};
 `;
