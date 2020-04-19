@@ -8,6 +8,7 @@ import {
   NavigatorItem,
   NavigatorContent,
   StarredContainer,
+  StarredItem,
 } from './styles';
 
 export default function MenuNavigator({
@@ -30,25 +31,40 @@ export default function MenuNavigator({
     emitter.addListener('startDrag', () => {
       if (opacityMenu === 1) {
         setOpacityMenu(0.3);
-        emitter.removeAllListeners();
       }
     });
 
     emitter.addListener('endDrag', () => {
       if (opacityMenu === 0.3) {
         setOpacityMenu(1);
-        emitter.removeAllListeners();
       }
     });
+
+    emitter.addListener('hideMenu', () => {
+      if (opacityMenu === 1) {
+        setOpacityMenu(0);
+      }
+    });
+
+    emitter.addListener('showMenu', () => {
+      if (opacityMenu === 0) {
+        setOpacityMenu(1);
+      }
+    });
+
+    return () => emitter.removeAllListeners();
   }, [opacityMenu, emitter]);
 
   return (
     <Container style={{opacity: opacityMenu}}>
-      <StarredContainer
-        active={isActiveStarred}
-        onPress={() => navigate('StarRed')}>
-        <Icon name="star" size={22} color="#FFD700" />
+      <StarredContainer>
+        <StarredItem
+          active={isActiveStarred}
+          onPress={() => navigate('StarRed')}>
+          <Icon name="star" size={22} color="#FFD700" />
+        </StarredItem>
       </StarredContainer>
+
       <NavigatorContainer>
         <NavigatorItem
           active={isActiveHome}

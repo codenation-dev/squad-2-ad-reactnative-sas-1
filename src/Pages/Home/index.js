@@ -1,5 +1,6 @@
 import React, {forwardRef} from 'react';
-import {FlatList} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import {FlatList, View} from 'react-native';
 import AppContainer from '../../Components/AppContainer';
 import Header from '../../Components/Header';
 import HeaderTitle from '../../Components/HeaderTitle';
@@ -14,9 +15,21 @@ import DevListItem from '../../Components/DevListItem';
 import Devs from '../../Components/DevListItem/devs.json';
 
 function Home(props, ref) {
+  const [userData, setUserData] = React.useState([]);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      const data = await AsyncStorage.getItem('user_profile');
+      setUserData(JSON.parse(data));
+    }
+    fetchData();
+  }, []);
+
   return (
     <AppContainer>
-      <Header>
+      <Header
+        profile_image={userData.avatar_url}
+        onPressImage={() => props.navigation.navigate('QrCode')}>
         <HeaderTitle>DevFinder</HeaderTitle>
         <HeaderSubtitle>
           Exibindo Desenvolvedores semelhantes em municípios próximos. Para
@@ -24,7 +37,10 @@ function Home(props, ref) {
         </HeaderSubtitle>
       </Header>
       <Container>
-        <SearchInput placeholder="Digite a cidade desejada" />
+        <SearchInput
+          placeholder="Digite a cidade desejada"
+          emitter={props.emitter}
+        />
         <ListContainer>
           <ListTitle>
             DESENVOLVEDORES EM <Bold>SÃO PAULO-SP</Bold>
@@ -32,6 +48,7 @@ function Home(props, ref) {
           <ListItemsContainer>
             <FlatList
               ref={ref}
+              ListFooterComponent={() => <View style={{height: 100}} />}
               keyExtractor={(item) => String(item.id)}
               data={Devs}
               renderItem={({item}) => <DevListItem profile={item} />}
