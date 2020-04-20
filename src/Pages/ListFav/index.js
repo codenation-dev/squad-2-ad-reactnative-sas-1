@@ -1,36 +1,46 @@
-import React, {useState, useEffect} from 'react';
+import React, {forwardRef} from 'react';
+import {FlatList} from 'react-native';
+import AppContainer from '../../Components/AppContainer';
+import Header from '../../Components/Header';
+import HeaderTitle from '../../Components/HeaderTitle';
+import HeaderSubtitle from '../../Components/HeaderSubtitle';
+import Container from '../../Components/Container';
+import ListContainer from '../../Components/ListContainer';
+import ListTitle, {Bold} from '../../Components/ListTitle';
+import ListItemsContainer from '../../Components/ListItemsContainer';
+import DevListItem from '../../Components/DevListItem';
 
-export default function ListFav() {
-  const [repositories, setRepositories] = useState([]);
+import Devs from '../../Components/DevListItem/devs.json';
 
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetch(
-        'https://api.github.com/users/gisesonia/repos'
-      );
-      const data = await response.json();
-       //Não sei se ficaria certo acrescentar um favorite true aqui
-      setRepositories(data);
-    }
-    fetchData();
-  }, []);
-
-  //Colocaria um render condicional se false esconde o favorito, está nos requisitos
-  function handleFavorite(id) {
-      const newrepositories = repositories.map(repo =>{
-          return repo.id === id ? {...repo, favorite: false}
-      });
-      setRepositories(newRepositories);
-  }
-
+//O que são essas props e ref, se aplica esse componente?
+function ListFav(props, ref) {
   return (
-    <ul>
-      {repositories.map((repo) => (
-        <li key={repo.id}>
-          {repo.name}
-          <button onClick={() => handleFavorite(repo.id)}></button>
-        </li>
-      ))}
-    </ul>
+    <AppContainer>
+      <Header>
+        <HeaderTitle>DevFinder Favoritos</HeaderTitle>
+        <HeaderSubtitle>
+          Favoritos
+        </HeaderSubtitle>
+      </Header>
+      <Container>
+        <ListContainer>
+          <ListTitle>
+            DESENVOLVEDORES EM <Bold>SÃO PAULO-SP</Bold>
+          </ListTitle>
+          <ListItemsContainer>
+            <FlatList
+              ref={ref}
+              keyExtractor={(item) => String(item.id)}
+              data={Devs}// Tá pegando dados do json com os nossos perfis? Como eu vou puxar os favoritos?
+              renderItem={({item}) => <DevListItem profile={item} />}
+              onScrollBeginDrag={() => props.emitter.emit('startDrag')}
+              onScrollEndDrag={() => props.emitter.emit('endDrag')}
+            />
+          </ListItemsContainer>
+        </ListContainer>
+      </Container>
+    </AppContainer>
   );
 }
+
+export default forwardRef(ListFav);
