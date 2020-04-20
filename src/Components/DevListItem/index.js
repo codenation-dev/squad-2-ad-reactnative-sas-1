@@ -15,7 +15,7 @@ import strings from '../../DefaultStrings/DevItem';
 
 export default function DevListItem({profile}) {
   return (
-    <Container>
+    <Container onPress={() => console.log('teste')}>
       <Photo source={{uri: profile.avatar_url}} />
       <ContainerColumn>
         <Name>{profile.name || strings.defaultUserName}</Name>
