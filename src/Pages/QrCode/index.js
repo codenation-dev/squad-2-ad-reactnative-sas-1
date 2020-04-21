@@ -1,6 +1,8 @@
 import React from 'react';
+import axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
 import {ActivityIndicator, View} from 'react-native';
+import QRCodeScanner from 'react-native-qrcode-scanner';
 
 import AppContainer from '../../Components/AppContainer';
 import Header from '../../Components/Header';
@@ -19,6 +21,7 @@ const qrCodeContainer = {
 export default function QrCode() {
   const [userData, setUserData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
+  const [openCamera, setOpenCamera] = React.useState(false);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -27,10 +30,6 @@ export default function QrCode() {
     }
     fetchData();
   }, []);
-
-  const handleTest = () => {
-    console.log('olar');
-  };
 
   const reloadQrCode = () => {
     setLoading(true);
@@ -51,6 +50,18 @@ export default function QrCode() {
     }, 500);
   };
 
+  const handleQrCodeReads = async (qrCode) => {
+    const profile_url = qrCode.data;
+
+    const api = axios.create({
+      baseURL: profile_url,
+    });
+
+    const {data} = await api.get();
+
+    console.log(data);
+  };
+
   return (
     <AppContainer>
       <Header profile_image={userData.avatar_url}>
@@ -67,8 +78,17 @@ export default function QrCode() {
             <QRCodeBox profile_url={userData.url} />
           )}
         </View>
-        <Button title="Ler QRCode" onPress={handleTest} />
+        <Button title="Ler QRCode" onPress={() => setOpenCamera(true)} />
         <Button title="Recarregar QRCode" onPress={reloadQrCode} />
+        {openCamera && (
+          <View style={{position: 'absolute', top: 60}}>
+            <QRCodeScanner onRead={handleQrCodeReads} showMarker />
+            <Button
+              title="fechar camera"
+              onPress={() => setOpenCamera(false)}
+            />
+          </View>
+        )}
       </Container>
     </AppContainer>
   );
