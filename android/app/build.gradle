@@ -134,6 +134,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+        missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
         abi {
@@ -197,6 +199,8 @@ dependencies {
     implementation project(':react-native-splash-screen')
 
     implementation project(':react-native-svg')
+
+    implementation 'com.android.support:multidex:1.0.3'
 
     compile project(':react-native-vector-icons')
 

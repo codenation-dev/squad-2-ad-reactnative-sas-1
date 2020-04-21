@@ -89,5 +89,7 @@
 		<string>Reem-Kufi.otf</string>
 		<string>Raleway-Bold.otf</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Your message to user when the camera is accessed for the first time</string>
 </dict>
 </plist>
