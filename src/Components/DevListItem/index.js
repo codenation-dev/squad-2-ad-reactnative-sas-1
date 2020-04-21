@@ -13,17 +13,17 @@ import {
 
 import strings from '../../DefaultStrings/DevItem';
 
-export default function DevListItem({profile}) {
+export default function DevListItem({profile, onPress}) {
   return (
-    <Container onPress={() => console.log('teste')}>
+    <Container onPress={onPress}>
       <Photo source={{uri: profile.avatar_url}} />
       <ContainerColumn>
-        <Name>{profile.name || strings.defaultUserName}</Name>
+        <Name>{profile.login || strings.defaultUserName}</Name>
         <Username>{profile.login}</Username>
       </ContainerColumn>
       <Followers>
         <Icons name="account-heart" size={20} color="#5a54ff" />
-        <FollowersCount>{profile.followers}</FollowersCount>
+        {/* <FollowersCount>{profile.followers}</FollowersCount> */}
       </Followers>
     </Container>
   );

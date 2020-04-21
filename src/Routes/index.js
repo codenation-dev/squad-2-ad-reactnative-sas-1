@@ -7,7 +7,7 @@ import Home from '../Pages/Home';
 
 import QrCode from '../Pages/QrCode';
 import StarRed from '../Pages/StarRed';
-
+import DetailDev from '../Pages/DetailDev';
 import Menu from '../Components/MenuNavigator';
 
 const Tab = createBottomTabNavigator();
@@ -23,6 +23,11 @@ export default function Routes() {
         <Tab.Screen name="Home" component={homeScreen} />
         <Tab.Screen name="QrCode" component={QrCode} />
         <Tab.Screen name="StarRed" component={StarRed} />
+        <Tab.Screen
+          name="DetailDev"
+          component={DetailDev}
+          options={{tabBarVisible: false}}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );

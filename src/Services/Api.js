@@ -7,3 +7,7 @@ export const api = axios.create({
 export const qrCodeApi = axios.create({
   baseURL: 'https://chart.googleapis.com',
 });
+
+export const mapsApi = axios.create({
+  baseURL: 'https://nominatim.openstreetmap.org/',
+});
