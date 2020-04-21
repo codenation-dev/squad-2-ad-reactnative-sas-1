@@ -1,6 +1,6 @@
 import React from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import {Alert} from 'react-native';
+import {ActivityIndicator, View} from 'react-native';
 
 import AppContainer from '../../Components/AppContainer';
 import Header from '../../Components/Header';
@@ -10,9 +10,15 @@ import Container from '../../Components/Container';
 import Button from '../../Components/Button';
 import QRCodeBox from '../../Components/QRCodeBox';
 
+const qrCodeContainer = {
+  height: 280,
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
 export default function QrCode() {
-  // exemplo de busca de dados na storage com hooks
   const [userData, setUserData] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -22,10 +28,15 @@ export default function QrCode() {
     fetchData();
   }, []);
 
-  console.log('user - Data', userData);
-
   const handleTest = () => {
-    Alert.alert('Testando');
+    setLoading(true);
+    const data = userData;
+    setUserData([]);
+
+    setTimeout(function () {
+      setUserData(data);
+      setLoading(false);
+    }, 500);
   };
 
   return (
@@ -37,7 +48,13 @@ export default function QrCode() {
         </HeaderSubtitle>
       </Header>
       <Container>
-        <QRCodeBox profile_url={userData.html_url} />
+        <View style={qrCodeContainer}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <QRCodeBox profile_url={userData.url} />
+          )}
+        </View>
         <Button title="Ler QRCode" onPress={handleTest} />
         <Button title="Recarregar QRCode" onPress={handleTest} />
       </Container>
