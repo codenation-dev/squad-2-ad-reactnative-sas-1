@@ -78,7 +78,9 @@ export default function QrCode({navigation}) {
       <Header profile_image={userData.avatar_url}>
         <HeaderTitle>{userData.login}</HeaderTitle>
         <HeaderSubtitle>
-          Exibindo o QRCode para compartilhar seu perfil com outros devs
+          {openCamera
+            ? 'Aponte sua câmera para ler o QR de outro dev e ir para seu perfil'
+            : 'Exibindo o QRCode para compartilhar seu perfil com outros devs'}
         </HeaderSubtitle>
       </Header>
       <Container>
