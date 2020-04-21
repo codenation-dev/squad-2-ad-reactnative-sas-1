@@ -30,11 +30,19 @@ export default function QrCode() {
 
   const handleTest = () => {
     setLoading(true);
-    const data = userData;
-    setUserData([]);
+
+    const qrCode_url = userData.url;
+
+    setUserData((data) => {
+      data.url = '';
+      return data;
+    });
 
     setTimeout(function () {
-      setUserData(data);
+      setUserData((data) => {
+        data.url = qrCode_url;
+        return data;
+      });
       setLoading(false);
     }, 500);
   };
