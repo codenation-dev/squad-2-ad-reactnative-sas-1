@@ -1,8 +1,9 @@
 import React from 'react';
-import axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
-import {ActivityIndicator, View} from 'react-native';
+import {ActivityIndicator, View, Alert} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
+
+import {api} from '../../Services/Api';
 
 import AppContainer from '../../Components/AppContainer';
 import Header from '../../Components/Header';
@@ -12,13 +13,15 @@ import Container from '../../Components/Container';
 import Button from '../../Components/Button';
 import QRCodeBox from '../../Components/QRCodeBox';
 
+console.disableYellowBox = true;
+
 const qrCodeContainer = {
   height: 280,
   alignItems: 'center',
   justifyContent: 'center',
 };
 
-export default function QrCode() {
+export default function QrCode({navigation}) {
   const [userData, setUserData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [openCamera, setOpenCamera] = React.useState(false);
@@ -51,15 +54,23 @@ export default function QrCode() {
   };
 
   const handleQrCodeReads = async (qrCode) => {
-    const profile_url = qrCode.data;
+    setOpenCamera(false);
 
-    const api = axios.create({
-      baseURL: profile_url,
-    });
+    const profile = qrCode.data;
 
-    const {data} = await api.get();
+    // data = dados do usuário obtido através do QRCode.
+    try {
+      const {data} = await api.get(`/users/${profile}`);
 
-    console.log(data);
+      navigation.navigate('DetailDev', {
+        profile: data,
+      });
+    } catch (err) {
+      Alert.alert(
+        'Oh não!',
+        'ocorreu um erro na leitura do QRCode, por favor tente recarrega-lo'
+      );
+    }
   };
 
   return (
@@ -75,14 +86,24 @@ export default function QrCode() {
           {loading ? (
             <ActivityIndicator size="large" color="#5A54FF" />
           ) : (
-            <QRCodeBox profile_url={userData.url} />
+            <QRCodeBox profile_url={userData.login} />
           )}
         </View>
         <Button title="Ler QRCode" onPress={() => setOpenCamera(true)} />
         <Button title="Recarregar QRCode" onPress={reloadQrCode} />
         {openCamera && (
           <View style={{position: 'absolute', top: 60}}>
-            <QRCodeScanner onRead={handleQrCodeReads} showMarker />
+            <QRCodeScanner
+              onRead={handleQrCodeReads}
+              showMarker
+              checkAndroid6Permissions
+              bottomContent={
+                <Button
+                  title="fechar camera"
+                  onPress={() => setOpenCamera(false)}
+                />
+              }
+            />
             <Button
               title="fechar camera"
               onPress={() => setOpenCamera(false)}
