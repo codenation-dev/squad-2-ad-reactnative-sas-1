@@ -1,6 +1,9 @@
 import React from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
-import {Alert} from 'react-native';
+import {ActivityIndicator, View, Alert} from 'react-native';
+import QRCodeScanner from 'react-native-qrcode-scanner';
+
+import {api} from '../../Services/Api';
 
 import AppContainer from '../../Components/AppContainer';
 import Header from '../../Components/Header';
@@ -10,9 +13,18 @@ import Container from '../../Components/Container';
 import Button from '../../Components/Button';
 import QRCodeBox from '../../Components/QRCodeBox';
 
-export default function QrCode() {
-  // exemplo de busca de dados na storage com hooks
+console.disableYellowBox = true;
+
+const qrCodeContainer = {
+  height: 280,
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+export default function QrCode({navigation}) {
   const [userData, setUserData] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [openCamera, setOpenCamera] = React.useState(false);
 
   React.useEffect(() => {
     async function fetchData() {
@@ -22,10 +34,43 @@ export default function QrCode() {
     fetchData();
   }, []);
 
-  console.log('user - Data', userData);
+  const reloadQrCode = () => {
+    setLoading(true);
 
-  const handleTest = () => {
-    Alert.alert('Testando');
+    const qrCode_url = userData.url;
+
+    setUserData((data) => {
+      data.url = 'loading...';
+      return data;
+    });
+
+    setTimeout(function () {
+      setUserData((data) => {
+        data.url = qrCode_url;
+        return data;
+      });
+      setLoading(false);
+    }, 500);
+  };
+
+  const handleQrCodeReads = async (qrCode) => {
+    setOpenCamera(false);
+
+    const profile = qrCode.data;
+
+    // data = dados do usuário obtido através do QRCode.
+    try {
+      const {data} = await api.get(`/users/${profile}`);
+
+      navigation.navigate('DetailDev', {
+        profile: data,
+      });
+    } catch (err) {
+      Alert.alert(
+        'Oh não!',
+        'ocorreu um erro na leitura do QRCode, por favor tente recarrega-lo'
+      );
+    }
   };
 
   return (
@@ -37,9 +82,34 @@ export default function QrCode() {
         </HeaderSubtitle>
       </Header>
       <Container>
-        <QRCodeBox profile_url={userData.html_url} />
-        <Button title="Ler QRCode" onPress={handleTest} />
-        <Button title="Recarregar QRCode" onPress={handleTest} />
+        <View style={qrCodeContainer}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#5A54FF" />
+          ) : (
+            <QRCodeBox profile_url={userData.login} />
+          )}
+        </View>
+        <Button title="Ler QRCode" onPress={() => setOpenCamera(true)} />
+        <Button title="Recarregar QRCode" onPress={reloadQrCode} />
+        {openCamera && (
+          <View style={{position: 'absolute', top: 60}}>
+            <QRCodeScanner
+              onRead={handleQrCodeReads}
+              showMarker
+              checkAndroid6Permissions
+              bottomContent={
+                <Button
+                  title="fechar camera"
+                  onPress={() => setOpenCamera(false)}
+                />
+              }
+            />
+            <Button
+              title="fechar camera"
+              onPress={() => setOpenCamera(false)}
+            />
+          </View>
+        )}
       </Container>
     </AppContainer>
   );
