@@ -11,6 +11,8 @@ export default function SearchInput({
   iconSize,
   color,
   emitter,
+  onLocationClick,
+  onFindClick,
   ...rest
 }) {
   React.useEffect(() => {
@@ -35,16 +37,18 @@ export default function SearchInput({
       <Input {...rest} />
 
       {loading ? (
-        <ActivityIndicator size="small" />
+        <ActivityIndicator size="small" style={{marginRight: 20}} />
       ) : (
-        <Button border>
+        <Button border onPress={onFindClick}>
           <Icon name="map-search-outline" size={iconSize} color={color} />
         </Button>
       )}
 
-      <Button>
-        <Icon name="map-marker-radius" size={iconSize} color={color} />
-      </Button>
+      {!loading && (
+        <Button onPress={onLocationClick}>
+          <Icon name="map-marker-radius" size={iconSize} color={color} />
+        </Button>
+      )}
     </Container>
   );
 }
