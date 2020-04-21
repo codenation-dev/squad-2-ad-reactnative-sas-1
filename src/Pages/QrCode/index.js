@@ -104,10 +104,6 @@ export default function QrCode({navigation}) {
                 />
               }
             />
-            <Button
-              title="fechar camera"
-              onPress={() => setOpenCamera(false)}
-            />
           </View>
         )}
       </Container>
