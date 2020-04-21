@@ -29,12 +29,16 @@ export default function QrCode() {
   }, []);
 
   const handleTest = () => {
+    console.log('olar');
+  };
+
+  const reloadQrCode = () => {
     setLoading(true);
 
     const qrCode_url = userData.url;
 
     setUserData((data) => {
-      data.url = '';
+      data.url = 'loading...';
       return data;
     });
 
@@ -58,13 +62,13 @@ export default function QrCode() {
       <Container>
         <View style={qrCodeContainer}>
           {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color="#5A54FF" />
           ) : (
             <QRCodeBox profile_url={userData.url} />
           )}
         </View>
         <Button title="Ler QRCode" onPress={handleTest} />
-        <Button title="Recarregar QRCode" onPress={handleTest} />
+        <Button title="Recarregar QRCode" onPress={reloadQrCode} />
       </Container>
     </AppContainer>
   );
