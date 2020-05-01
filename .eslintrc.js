@@ -41,6 +41,7 @@ module.exports = {
     "no-undef": "off",
     "consistent-return": "off",
     "react/prop-types": 'off',
-    "no-debugger": "off"
+    "no-debugger": "off",
+    "no-console": "off"
   },
 };

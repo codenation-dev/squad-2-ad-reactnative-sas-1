@@ -13,6 +13,8 @@ import Container from '../../Components/Container';
 import Button from '../../Components/Button';
 import QRCodeBox from '../../Components/QRCodeBox';
 
+import {CloseButton, CloseText} from './styles';
+
 console.disableYellowBox = true;
 
 const qrCodeContainer = {
@@ -84,29 +86,37 @@ export default function QrCode({navigation}) {
         </HeaderSubtitle>
       </Header>
       <Container>
-        <View style={qrCodeContainer}>
-          {loading ? (
-            <ActivityIndicator size="large" color="#5A54FF" />
-          ) : (
-            <QRCodeBox profile_url={userData.login} />
-          )}
-        </View>
-        <Button title="Ler QRCode" onPress={() => setOpenCamera(true)} />
-        <Button title="Recarregar QRCode" onPress={reloadQrCode} />
+        {!openCamera && (
+          <>
+            <View style={qrCodeContainer}>
+              {loading ? (
+                <ActivityIndicator size="large" color="#5A54FF" />
+              ) : (
+                <QRCodeBox profile_url={userData.login} />
+              )}
+            </View>
+            <Button title="Ler QRCode" onPress={() => setOpenCamera(true)} />
+            <Button title="Recarregar QRCode" onPress={reloadQrCode} />
+          </>
+        )}
         {openCamera && (
-          <View style={{position: 'absolute', top: 60}}>
-            <QRCodeScanner
-              onRead={handleQrCodeReads}
-              showMarker
-              checkAndroid6Permissions
-              bottomContent={
-                <Button
-                  title="fechar camera"
-                  onPress={() => setOpenCamera(false)}
-                />
-              }
-            />
-          </View>
+          <QRCodeScanner
+            onRead={handleQrCodeReads}
+            showMarker
+            checkAndroid6Permissions
+            containerStyle={{
+              alignSelf: 'center',
+              marginTop: -50,
+            }}
+            topViewStyle={{
+              zIndex: 1000,
+            }}
+            topContent={
+              <CloseButton onPress={() => setOpenCamera(false)}>
+                <CloseText>X</CloseText>
+              </CloseButton>
+            }
+          />
         )}
       </Container>
     </AppContainer>
