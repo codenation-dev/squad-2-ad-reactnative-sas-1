@@ -10,6 +10,7 @@ export const Container = styled.View`
   align-items: center;
   border-width: ${search.borderWidth};
   border-color: ${search.borderColor};
+  background: #fff;
 `;
 
 export const Input = styled.TextInput`

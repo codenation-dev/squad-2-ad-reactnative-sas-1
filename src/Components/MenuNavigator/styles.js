@@ -6,7 +6,7 @@ export const Container = styled.View`
   position: absolute;
   bottom: 40px;
   flex: 1;
-  height: 44px;
+  height: 100px;
   justify-content: center;
   align-items: center;
   width: ${`${fullWitdh}px`};
@@ -14,23 +14,24 @@ export const Container = styled.View`
 
 export const NavigatorContainer = styled.View`
   width: 250px;
-  height: 44px;
+  height: 50px;
   flex-direction: row;
   background: ${(props) => (props.active ? '#000' : '#fff')};
   border-radius: 15px;
   align-items: center;
   justify-content: center;
-  elevation: 2;
+  border: rgba(0, 0, 0, 0.1) 3px solid;
   border-radius: 20px;
 `;
 export const NavigatorItem = styled(RectButton)`
   flex: 1;
-  height: 44px;
+  height: 45px;
   background: ${(props) => (props.active ? '#F0F1FF' : '#fff')};
   align-items: center;
   justify-content: center;
   flex-direction: row;
   border-radius: 20px;
+
   ${(props) =>
     props.first &&
     css`
@@ -60,6 +61,7 @@ export const StarredItem = styled.TouchableOpacity`
   padding: 8px 15px 8px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-  elevation: 2;
+  border: rgba(0, 0, 0, 0.1) 3px solid;
+  border-bottom-color: #fff;
   background: ${(props) => (props.active ? '#F0F1FF' : '#fff')};
 `;

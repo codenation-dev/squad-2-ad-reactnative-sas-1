@@ -1,7 +1,15 @@
 import React, {forwardRef} from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
-import {FlatList, View, Alert} from 'react-native';
+
+import {
+  FlatList,
+  Alert,
+  Keyboard,
+  Animated,
+  Easing,
+  Dimensions,
+} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import EventEmmiter from '../../events';
 import AppContainer from '../../Components/AppContainer';
 import Header from '../../Components/Header';
 import HeaderTitle from '../../Components/HeaderTitle';
@@ -12,41 +20,49 @@ import ListContainer from '../../Components/ListContainer';
 import ListTitle, {Bold} from '../../Components/ListTitle';
 import ListItemsContainer from '../../Components/ListItemsContainer';
 import DevListItem from '../../Components/DevListItem';
+import ListEndComponent from '../../Components/ListEndComponent';
+import ListNotFound from '../../Components/ListNotFound';
+import FigureHome from '../../Components/FigureHome';
 
 import {mapsApi, api} from '../../Services/Api';
 
-import Devs from '../../Components/DevListItem/devs.json';
+const INITIAL_PAGINATION = {
+  count: null,
+  page: 1,
+  perPage: 30,
+  lastPage: false,
+};
+
+function displayErros(error) {
+  Alert.alert('Ocorreu um erro.', `erro:${error}`);
+}
 
 function Home(props, ref) {
-  const [paginationDetails, setPaginationDetails] = React.useState({});
+  const [paginationDetails, setPaginationDetails] = React.useState({
+    ...INITIAL_PAGINATION,
+  });
+  const [animationLeft] = React.useState(
+    new Animated.Value(-Dimensions.get('window').width)
+  );
+
   const [devList, setDevList] = React.useState([]);
-  const [userData, setUserData] = React.useState([]);
 
-  const [loading, setLoading] = React.useState(true);
-
-  const [location, setLocation] = React.useState({});
+  const [inputLoading, setInputLoading] = React.useState(true);
 
   const [locationSearch, setLocationSearch] = React.useState('');
 
-  const localeSearchable = React.useMemo(() => {
-    if (location.address) {
-      let [s1, s2] = location.address.state.split(' ');
-      if (!s2) [, s2] = s1.split('');
-      [s1, s2] = [s1.split('')[0], s2.split('')[0]];
-      return `${
-        locationSearch || location.address.city
-      } - ${s1}${s2}`.toUpperCase();
-    }
-    return location.locationSearch || '';
-  }, [location]);
+  const [search, setSearch] = React.useState('');
 
   async function handleFindDev() {
+    if (!locationSearch) return;
+    Keyboard.dismiss();
     try {
-      setLoading(true);
+      setInputLoading(true);
       const response = await api.get(
         `search/users?q=location:${locationSearch}`
       );
-      setLoading(false);
+      setInputLoading(false);
+      setSearch(locationSearch);
       setPaginationDetails({
         count: response.data.total_count,
         page: 1,
@@ -54,9 +70,8 @@ function Home(props, ref) {
         lastPage: false,
       });
       setDevList(response.data.items);
-      setLocation({locationSearch});
     } catch (e) {
-      setLoading(false);
+      setInputLoading(false);
       displayErros('erro na api do github');
       console.log(e);
       console.log(e.response.data);
@@ -64,18 +79,16 @@ function Home(props, ref) {
   }
 
   async function handleOnEachList() {
+    console.log('chamou');
     try {
-      setLoading(true);
-      const {count, page, perPage, lastPage} = paginationDetails;
-      const response = await api.get(
-        `search/users?q=location:${locationSearch}`,
-        {
-          params: {
-            page: page + 1,
-          },
-        }
-      );
-      setLoading(false);
+      setInputLoading(true);
+      const {page} = paginationDetails;
+      const response = await api.get(`search/users?q=location:${search}`, {
+        params: {
+          page: page + 1,
+        },
+      });
+      setInputLoading(false);
       setDevList([...devList, ...response.data.items]);
       setPaginationDetails({
         count: response.data.total_count,
@@ -84,30 +97,40 @@ function Home(props, ref) {
         lastPage: false,
       });
     } catch (e) {
-      setLoading(false);
+      setInputLoading(false);
       displayErros('erro na api do github');
       console.log(e.response.data);
     }
   }
 
   async function getLocation(lat, lon) {
-    const response = await mapsApi.get('reverse', {
-      params: {
-        format: 'json',
-        lat,
-        lon,
-        addressdetails: 1,
-        'accept-language': 'pt-BR',
-        zoom: 18,
-      },
-    });
-    setLoading(false);
-    setLocationSearch(response.data.address.city);
-    setLocation(response.data);
+    try {
+      const response = await mapsApi.get('reverse', {
+        params: {
+          format: 'json',
+          lat,
+          lon,
+          addressdetails: 1,
+          'accept-language': 'pt-BR',
+          zoom: 18,
+        },
+        headers: {
+          Referer: 'https://vetor.tech',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
+        },
+      });
+      setInputLoading(false);
+      setLocationSearch(response.data.address.city);
+    } catch (e) {
+      console.log(e);
+      console.log(e.response);
+      console.log(e.response.data);
+    }
   }
 
   function getPosition() {
-    setLoading(true);
+    setInputLoading(true);
     setLocationSearch('');
     Geolocation.getCurrentPosition(
       ({coords}) => {
@@ -115,31 +138,34 @@ function Home(props, ref) {
         getLocation(coords.latitude, coords.longitude);
       },
       (error) => {
-        setLoading(false);
+        setInputLoading(false);
         console.log(error);
       },
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
     );
   }
 
-  function displayErros(error) {
-    Alert.alert('Ocorreu um erro.', `erro:${error}`);
-  }
+  const notFound = React.useMemo(() => {
+    return paginationDetails.count === 0;
+  }, [paginationDetails]);
+
+  const EndReached = React.useMemo(() => {
+    return Math.ceil(paginationDetails.count / 30) === paginationDetails.page;
+  }, [paginationDetails]);
 
   React.useEffect(() => {
-    async function fetchData() {
-      const data = await AsyncStorage.getItem('user_profile');
-      setUserData(JSON.parse(data));
-    }
-    fetchData();
     getPosition();
-  }, []);
+    Animated.timing(animationLeft, {
+      toValue: 0,
+      duration: 1000,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  }, [animationLeft]);
 
   return (
     <AppContainer>
-      <Header
-        profile_image={userData.avatar_url}
-        onPressImage={() => props.navigation.navigate('QrCode')}>
+      <Header>
         <HeaderTitle>DevFinder</HeaderTitle>
         <HeaderSubtitle>
           Exibindo Desenvolvedores semelhantes em municípios próximos. Para
@@ -152,25 +178,29 @@ function Home(props, ref) {
           onChangeText={setLocationSearch}
           value={locationSearch}
           emitter={props.emitter}
-          loading={loading}
+          loading={inputLoading}
           onLocationClick={getPosition}
           onFindClick={handleFindDev}
         />
+
         <ListContainer>
-          {devList.length > 0 ? (
+          {devList.length > 0 || notFound ? (
             <ListTitle>
-              DESENVOLVEDORES EM <Bold>{localeSearchable}</Bold>
+              DESENVOLVEDORES EM <Bold>{search.toUpperCase()}</Bold>
             </ListTitle>
           ) : (
-            <ListTitle>
-              Clique em buscar para achar Desenvolvedores de{' '}
-              <Bold>{locationSearch}</Bold>
-            </ListTitle>
+            <>
+              <Animated.View
+                style={{
+                  transform: [{translateX: animationLeft}],
+                }}>
+                <FigureHome />
+              </Animated.View>
+            </>
           )}
           <ListItemsContainer>
             <FlatList
               ref={ref}
-              ListFooterComponent={() => <View style={{height: 100}} />}
               keyExtractor={(item) => String(item.id)}
               data={devList}
               maxToRenderPerBatch={10}
@@ -184,9 +214,26 @@ function Home(props, ref) {
                   }
                 />
               )}
-              onEndReached={handleOnEachList}
-              onScrollBeginDrag={() => props.emitter.emit('startDrag')}
-              onScrollEndDrag={() => props.emitter.emit('endDrag')}
+              onEndReachedThreshold={0.1}
+              onEndReached={!EndReached && handleOnEachList}
+              onScrollBeginDrag={() =>
+                EventEmmiter.dispatch('MenuOpacity', 0.3)
+              }
+              onScrollEndDrag={() => EventEmmiter.dispatch('MenuOpacity', 1)}
+              ListFooterComponent={() => (
+                <ListEndComponent
+                  EndReached={EndReached}
+                  showIndicator={inputLoading}
+                />
+              )}
+              ListEmptyComponent={() =>
+                notFound && (
+                  <ListNotFound
+                    text="Desenvoledores não encontrados"
+                    argument={search}
+                  />
+                )
+              }
             />
           </ListItemsContainer>
         </ListContainer>
