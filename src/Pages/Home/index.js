@@ -1,4 +1,4 @@
-import React, {forwardRef} from 'react';
+import React, {useRef, useState, useCallback, useMemo, useEffect} from 'react';
 
 import {
   FlatList,
@@ -37,29 +37,34 @@ function displayErros(error) {
   Alert.alert('Ocorreu um erro.', `erro:${error}`);
 }
 
-function Home(props, ref) {
-  const [paginationDetails, setPaginationDetails] = React.useState({
+function Home({navigation}) {
+  const [paginationDetails, setPaginationDetails] = useState({
     ...INITIAL_PAGINATION,
   });
-  const [animationLeft] = React.useState(
+  const [animationLeft] = useState(
     new Animated.Value(-Dimensions.get('window').width)
   );
 
-  const [devList, setDevList] = React.useState([]);
+  const [devList, setDevList] = useState([]);
 
-  const [inputLoading, setInputLoading] = React.useState(true);
+  const [inputLoading, setInputLoading] = useState(true);
 
-  const [locationSearch, setLocationSearch] = React.useState('');
+  const [locationSearch, setLocationSearch] = useState('');
 
-  const [search, setSearch] = React.useState('');
+  const [search, setSearch] = useState('');
 
-  async function handleFindDev() {
+  const devListRef = useRef();
+
+  const handleFindDev = useCallback(async () => {
     if (!locationSearch) return;
+    devListRef.current.scrollToOffset({animated: true, offset: 0});
     Keyboard.dismiss();
     try {
       setInputLoading(true);
       const response = await api.get(
-        `search/users?q=location:${locationSearch}`
+        `search/users?q=location:${locationSearch}`,
+        {},
+        {timeout: 4}
       );
       setInputLoading(false);
       setSearch(locationSearch);
@@ -72,14 +77,13 @@ function Home(props, ref) {
       setDevList(response.data.items);
     } catch (e) {
       setInputLoading(false);
-      displayErros('erro na api do github');
+      displayErros('Erro ns requisição');
       console.log(e);
       console.log(e.response.data);
     }
-  }
+  }, [locationSearch]);
 
   async function handleOnEachList() {
-    console.log('chamou');
     try {
       setInputLoading(true);
       const {page} = paginationDetails;
@@ -98,8 +102,8 @@ function Home(props, ref) {
       });
     } catch (e) {
       setInputLoading(false);
-      displayErros('erro na api do github');
-      console.log(e.response.data);
+      displayErros('erro na api do github 22');
+      console.log(e);
     }
   }
 
@@ -129,7 +133,7 @@ function Home(props, ref) {
     }
   }
 
-  function getPosition() {
+  const getPosition = useCallback(() => {
     setInputLoading(true);
     setLocationSearch('');
     Geolocation.getCurrentPosition(
@@ -143,17 +147,21 @@ function Home(props, ref) {
       },
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
     );
-  }
+  }, []);
 
-  const notFound = React.useMemo(() => {
+  // check if request returns devs
+  const notFound = useMemo(() => {
     return paginationDetails.count === 0;
   }, [paginationDetails]);
 
-  const EndReached = React.useMemo(() => {
+  // check if flatlist has arrived to end
+  const EndReached = useMemo(() => {
     return Math.ceil(paginationDetails.count / 30) === paginationDetails.page;
   }, [paginationDetails]);
 
-  React.useEffect(() => {
+  // effect on didMount
+
+  useEffect(() => {
     getPosition();
     Animated.timing(animationLeft, {
       toValue: 0,
@@ -161,7 +169,7 @@ function Home(props, ref) {
       easing: Easing.ease,
       useNativeDriver: true,
     }).start();
-  }, [animationLeft]);
+  }, [animationLeft, getPosition]);
 
   return (
     <AppContainer>
@@ -177,7 +185,6 @@ function Home(props, ref) {
           placeholder="Digite a cidade desejada"
           onChangeText={setLocationSearch}
           value={locationSearch}
-          emitter={props.emitter}
           loading={inputLoading}
           onLocationClick={getPosition}
           onFindClick={handleFindDev}
@@ -200,7 +207,7 @@ function Home(props, ref) {
           )}
           <ListItemsContainer>
             <FlatList
-              ref={ref}
+              ref={devListRef}
               keyExtractor={(item) => String(item.id)}
               data={devList}
               maxToRenderPerBatch={10}
@@ -208,7 +215,7 @@ function Home(props, ref) {
                 <DevListItem
                   profile={item}
                   onPress={() =>
-                    props.navigation.navigate('DetailDev', {
+                    navigation.navigate('DetailDev', {
                       profile: item,
                     })
                   }
@@ -242,4 +249,4 @@ function Home(props, ref) {
   );
 }
 
-export default forwardRef(Home);
+export default Home;
