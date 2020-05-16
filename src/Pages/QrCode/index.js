@@ -46,7 +46,7 @@ export default function QrCode({navigation}) {
       return data;
     });
 
-    setTimeout(function () {
+    setTimeout(() => {
       setUserData((data) => {
         data.url = qrCode_url;
         return data;
@@ -60,7 +60,9 @@ export default function QrCode({navigation}) {
 
     const profile = qrCode.data;
 
-    // data = dados do usuário obtido através do QRCode.
+    /*
+     * data = dados do usuário obtido através do QRCode.
+     */
     try {
       const {data} = await api.get(`/users/${profile}`);
 

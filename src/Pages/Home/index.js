@@ -7,6 +7,7 @@ import {
   Animated,
   Easing,
   Dimensions,
+  PermissionsAndroid,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import EventEmmiter from '../../events';
@@ -53,6 +54,9 @@ function Home({navigation}) {
 
   const [search, setSearch] = useState('');
 
+  // f
+  const [geoPermission, setGeoPermission] = useState(false);
+
   const devListRef = useRef();
 
   const handleFindDev = useCallback(async () => {
@@ -82,6 +86,32 @@ function Home({navigation}) {
       console.log(e.response.data);
     }
   }, [locationSearch]);
+
+  useEffect(() => {
+    const setPermission = async () => {
+      console.log(
+        'ACESSO AO FINE LOCATION -> ',
+        await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        )
+      );
+      const permission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+
+      if (permission === PermissionsAndroid.RESULTS.GRANTED) {
+        setGeoPermission(true);
+      }
+    };
+
+    setPermission();
+  }, []);
+
+  useEffect(() => {
+    if (locationSearch) {
+      handleFindDev();
+    }
+  }, [locationSearch, handleFindDev]);
 
   async function handleOnEachList() {
     try {
@@ -136,17 +166,21 @@ function Home({navigation}) {
   const getPosition = useCallback(() => {
     setInputLoading(true);
     setLocationSearch('');
-    Geolocation.getCurrentPosition(
-      ({coords}) => {
-        console.log(coords);
-        getLocation(coords.latitude, coords.longitude);
-      },
-      (error) => {
-        setInputLoading(false);
-        console.log(error);
-      },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
-    );
+    if (geoPermission) {
+      Geolocation.getCurrentPosition(
+        ({coords}) => {
+          console.log(coords);
+          getLocation(coords.latitude, coords.longitude);
+        },
+        (error) => {
+          setInputLoading(false);
+          console.log(error);
+        },
+        {enableHighAccuracy: false, timeout: 5000}
+      );
+    } else {
+      // Geolocation.requestAuthorization();
+    }
   }, []);
 
   // check if request returns devs
