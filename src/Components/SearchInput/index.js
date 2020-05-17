@@ -41,7 +41,7 @@ export default function SearchInput({
         <ActivityIndicator size="small" style={{marginRight: 20}} />
       ) : (
         <Button border onPress={onFindClick}>
-          <Icon name="map-search-outline" size={iconSize} color={color} />
+          <Icon name="account-search" size={iconSize} color={color} />
         </Button>
       )}
 

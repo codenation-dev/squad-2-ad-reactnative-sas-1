@@ -31,7 +31,7 @@ export const Username = styled.Text`
   font-family: 'Raleway-Bold';
 `;
 
-export const Followers = styled.View`
+export const Followers = styled.TouchableOpacity`
   position: absolute;
   right: 10px;
   top: 10px;

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {forwardRef} from 'react';
 
 import {InputComponent} from './styles';
 
-export default function Input(props) {
-  return <InputComponent {...props} />;
+function Input(props, ref) {
+  return <InputComponent {...props} ref={ref} />;
 }
+
+export default forwardRef(Input);

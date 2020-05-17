@@ -22,11 +22,12 @@ export const NavigatorContainer = styled.View`
   justify-content: center;
   border: rgba(0, 0, 0, 0.1) 3px solid;
   border-radius: 20px;
+  overflow: hidden;
 `;
-export const NavigatorItem = styled(RectButton)`
+export const NavigatorItem = styled.TouchableOpacity`
   flex: 1;
   height: 45px;
-  background: ${(props) => (props.active ? '#F0F1FF' : '#fff')};
+  /* background: ${(props) => (props.active ? '#F0F1FF' : '#fff')}; */
   align-items: center;
   justify-content: center;
   flex-direction: row;
@@ -63,5 +64,7 @@ export const StarredItem = styled.TouchableOpacity`
   border-top-right-radius: 20px;
   border: rgba(0, 0, 0, 0.1) 3px solid;
   border-bottom-color: #fff;
-  background: ${(props) => (props.active ? '#F0F1FF' : '#fff')};
+  position:relative;
+  overflow:hidden;
+  /* background: ${(props) => (props.active ? '#F0F1FF' : '#fff')}; */
 `;

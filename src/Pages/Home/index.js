@@ -7,7 +7,6 @@ import {
   Animated,
   Easing,
   Dimensions,
-  PermissionsAndroid,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import EventEmmiter from '../../events';
@@ -35,7 +34,7 @@ const INITIAL_PAGINATION = {
 };
 
 function displayErros(error) {
-  Alert.alert('Ocorreu um erro.', `erro:${error}`);
+  Alert.alert('Ocorreu um erro.', `${error}`);
 }
 
 function Home({navigation}) {
@@ -53,9 +52,6 @@ function Home({navigation}) {
   const [locationSearch, setLocationSearch] = useState('');
 
   const [search, setSearch] = useState('');
-
-  // f
-  const [geoPermission, setGeoPermission] = useState(false);
 
   const devListRef = useRef();
 
@@ -86,26 +82,6 @@ function Home({navigation}) {
       console.log(e.response.data);
     }
   }, [locationSearch]);
-
-  useEffect(() => {
-    const setPermission = async () => {
-      console.log(
-        'ACESSO AO FINE LOCATION -> ',
-        await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-        )
-      );
-      const permission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-
-      if (permission === PermissionsAndroid.RESULTS.GRANTED) {
-        setGeoPermission(true);
-      }
-    };
-
-    setPermission();
-  }, []);
 
   useEffect(() => {
     if (locationSearch) {
@@ -164,23 +140,17 @@ function Home({navigation}) {
   }
 
   const getPosition = useCallback(() => {
-    setInputLoading(true);
-    setLocationSearch('');
-    if (geoPermission) {
-      Geolocation.getCurrentPosition(
-        ({coords}) => {
-          console.log(coords);
-          getLocation(coords.latitude, coords.longitude);
-        },
-        (error) => {
-          setInputLoading(false);
-          console.log(error);
-        },
-        {enableHighAccuracy: false, timeout: 5000}
-      );
-    } else {
-      // Geolocation.requestAuthorization();
-    }
+    setInputLoading(false);
+
+    const sucesso = ({coords}) =>
+      getLocation(coords.latitude, coords.longitude);
+
+    const erro = (error) => {
+      setInputLoading(false);
+      displayErros('Não foi possível obter sua localização.');
+      console.log(error);
+    };
+    Geolocation.getCurrentPosition(sucesso, erro);
   }, []);
 
   // check if request returns devs
@@ -199,7 +169,7 @@ function Home({navigation}) {
     getPosition();
     Animated.timing(animationLeft, {
       toValue: 0,
-      duration: 1000,
+      duration: 600,
       easing: Easing.ease,
       useNativeDriver: true,
     }).start();
@@ -256,6 +226,7 @@ function Home({navigation}) {
                 />
               )}
               onEndReachedThreshold={0.1}
+              showsVerticalScrollIndicator={false}
               onEndReached={!EndReached && handleOnEachList}
               onScrollBeginDrag={() =>
                 EventEmmiter.dispatch('MenuOpacity', 0.3)

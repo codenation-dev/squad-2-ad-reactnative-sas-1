@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {Alert, ImageBackground} from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -24,6 +24,7 @@ import CodenationLogo from '../../Assets/Image/logoCodenation.png';
 import backgroundImage from '../../Assets/Image/background.png';
 
 export default function SignIn({login}) {
+  const passwordRef = useRef();
   const submitForm = (data) => {
     const authentication = AuthService.login(data.user, data.password)
       .then((user) => {
@@ -71,6 +72,10 @@ export default function SignIn({login}) {
             <Input
               onChangeText={(value) => setValue('user', value)}
               validation={!!errors.user}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current.focus()}
             />
             {errors.user && (
               <ErrorText>por favor, informe seu usuário do github</ErrorText>
@@ -82,6 +87,9 @@ export default function SignIn({login}) {
               secureTextEntry
               onChangeText={(value) => setValue('password', value)}
               validation={!!errors.password}
+              ref={passwordRef}
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit(submitForm)}
             />
             {errors.password && (
               <ErrorText>por favor, informe sua senha do github</ErrorText>

@@ -1,17 +1,18 @@
 import styled from 'styled-components/native';
-import {StatusBar} from 'react-native';
+import {StatusBar, Dimensions} from 'react-native';
 import {header} from '../../Styles/Colors';
 import {paddingHeader} from '../../Styles/Sizes';
 
 export const Container = styled.View`
-  height: 140px;
+  height: 160px;
+  width: ${`${Dimensions.get('window').width}px`};
 `;
 
 export const HeaderArea = styled.View`
   background-color: ${(props) => props.bgColor || header.backgorund};
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   flex: 1;
 `;
 export const HeaderContent = styled.View`
