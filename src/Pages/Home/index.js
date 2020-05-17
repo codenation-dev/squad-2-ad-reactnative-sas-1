@@ -83,11 +83,11 @@ function Home({navigation}) {
     }
   }, [locationSearch]);
 
-  useEffect(() => {
-    if (locationSearch) {
-      handleFindDev();
-    }
-  }, [locationSearch, handleFindDev]);
+  // useEffect(() => {
+  //   if (locationSearch) {
+  //     handleFindDev();
+  //   }
+  // }, [locationSearch, handleFindDev]);
 
   async function handleOnEachList() {
     try {
@@ -132,6 +132,7 @@ function Home({navigation}) {
       });
       setInputLoading(false);
       setLocationSearch(response.data.address.city);
+      handleFindDev();
     } catch (e) {
       console.log(e);
       console.log(e.response);
@@ -150,7 +151,10 @@ function Home({navigation}) {
       displayErros('Não foi possível obter sua localização.');
       console.log(error);
     };
-    Geolocation.getCurrentPosition(sucesso, erro);
+    Geolocation.getCurrentPosition(sucesso, erro, {
+      enableHighAccuracy: true,
+      timeout: 20000,
+    });
   }, []);
 
   // check if request returns devs
