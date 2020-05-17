@@ -2,22 +2,27 @@ import React from 'react';
 import {Animated} from 'react-native';
 import PropTypes from 'prop-types';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-community/async-storage';
+
 import {
   Container,
   Photo,
   Name,
   Username,
   Followers,
-  FollowersCount,
   ContainerColumn,
 } from './styles';
 
 import strings from '../../DefaultStrings/DevItem';
 
-export default function DevListItem({profile, onPress}) {
+export default function DevListItem({profile, onPress, favorited}) {
   const [animatedScale] = React.useState(new Animated.Value(1));
-  const [heartColor, setHeartColor] = React.useState('#5a54ff');
-  function handleFav() {
+  console.log('favorited 2 ', favorited);
+  const [heartColor, setHeartColor] = React.useState(
+    !favorited ? '#5a54ff' : '#e2264d'
+  );
+
+  function animateHeart() {
     Animated.timing(animatedScale, {
       toValue: 0,
       duration: 200,
@@ -34,6 +39,29 @@ export default function DevListItem({profile, onPress}) {
         useNativeDriver: true,
       }).start();
     });
+  }
+
+  async function handleFav() {
+    animateHeart();
+
+    const favourites =
+      JSON.parse(await AsyncStorage.getItem('favourites')) || [];
+
+    if (favourites.length <= 0) {
+      favourites.push(profile);
+      await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
+    } else {
+      const isFavouriteAlready = favourites.findIndex(
+        (favourite) => favourite.id === profile.id
+      );
+      if (isFavouriteAlready < 0) {
+        favourites.push(profile);
+        await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
+      } else {
+        favourites.splice(isFavouriteAlready, 1);
+        await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
+      }
+    }
   }
   return (
     <Container onPress={onPress}>
