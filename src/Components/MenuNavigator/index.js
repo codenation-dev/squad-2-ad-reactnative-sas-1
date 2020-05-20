@@ -48,7 +48,6 @@ export default function MenuNavigator({state, descriptors, navigation}) {
   React.useEffect(() => {
     EventEmmiter.subscribe('MenuOpacity', (event) => {
       setOpacityMenu(event);
-      console.log(EventEmmiter.events);
     });
 
     return () => null;
