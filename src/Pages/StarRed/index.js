@@ -1,6 +1,6 @@
-import React from 'react';
-import {View, FlatList} from 'react-native';
-import {title} from '../../Styles/Typography';
+import React, {useState, useEffect} from 'react';
+import {FlatList} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import AppContainer from '../../Components/AppContainer';
 import Header from '../../Components/Header';
@@ -9,31 +9,50 @@ import HeaderSubtitle from '../../Components/HeaderSubtitle';
 import Container from '../../Components/Container';
 import SearchInput from '../../Components/SearchInput';
 import ListContainer from '../../Components/ListContainer';
-import ListTitle, {Bold} from '../../Components/ListTitle';
 import ListItemsContainer from '../../Components/ListItemsContainer';
 import DevListItem from '../../Components/DevListItem';
-import Devs from '../../Components/DevListItem/devs.json';
 
-export default function StarRed() {
+export default function StarRed({navigation}) {
+  const [favs, setFavs] = useState([]);
+
+  useEffect(() => {
+    const getFavs = async () => {
+      const data = await AsyncStorage.getItem('favourites');
+      setFavs(JSON.parse(data));
+    };
+
+    getFavs();
+  }, [favs]);
+
   return (
     <AppContainer>
       <Header>
         <HeaderTitle>Favoritos</HeaderTitle>
         <HeaderSubtitle>
-          Aqui fica os devs que você marcou como favorito.
+          Aqui ficam os seus desenvolvedores marcados como favoritos!
         </HeaderSubtitle>
       </Header>
       <Container>
-        <SearchInput placeholder="Digite o nome/login do desenvolvedor" />
+        <SearchInput
+          placeholder="Digite o nome/login do desenvolvedor"
+          onlySearch
+        />
         <ListContainer>
-          <ListTitle>
-            DESENVOLVEDORES EM <Bold>SÃO PAULO-SP</Bold>
-          </ListTitle>
           <ListItemsContainer>
             <FlatList
               keyExtractor={(item) => String(item.id)}
-              data={Devs}
-              renderItem={({item}) => <DevListItem profile={item} />}
+              data={favs}
+              renderItem={({item}) => (
+                <DevListItem
+                  profile={item}
+                  favorited
+                  onPress={() =>
+                    navigation.navigate('DetailDev', {
+                      profile: item,
+                    })
+                  }
+                />
+              )}
             />
           </ListItemsContainer>
         </ListContainer>

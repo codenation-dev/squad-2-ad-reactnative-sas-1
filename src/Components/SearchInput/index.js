@@ -13,6 +13,7 @@ export default function SearchInput({
   color,
   onLocationClick,
   onFindClick,
+  onlySearch,
   ...rest
 }) {
   React.useEffect(() => {
@@ -40,14 +41,20 @@ export default function SearchInput({
       {loading ? (
         <ActivityIndicator size="small" style={{marginRight: 20}} />
       ) : (
-        <Button border onPress={onFindClick}>
-          <Icon name="account-search" size={iconSize} color={color} />
-        </Button>
+        !onlySearch && (
+          <Button border onPress={onFindClick}>
+            <Icon name="account-search" size={iconSize} color={color} />
+          </Button>
+        )
       )}
 
       {!loading && (
         <Button onPress={onLocationClick}>
-          <Icon name="map-marker-radius" size={iconSize} color={color} />
+          <Icon
+            name={onlySearch ? 'account-search' : 'map-marker-radius'}
+            size={iconSize}
+            color={color}
+          />
         </Button>
       )}
     </Container>

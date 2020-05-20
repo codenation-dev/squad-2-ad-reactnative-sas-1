@@ -1,4 +1,5 @@
 import React, {useRef, useState, useCallback, useMemo, useEffect} from 'react';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import {
   FlatList,
@@ -59,6 +60,9 @@ function Home({navigation}) {
     if (!locationSearch) return;
     devListRef.current.scrollToOffset({animated: true, offset: 0});
     Keyboard.dismiss();
+
+    const favourites = JSON.parse(await AsyncStorage.getItem('favourites'));
+
     try {
       setInputLoading(true);
       const response = await api.get(
@@ -74,6 +78,11 @@ function Home({navigation}) {
         perPage: response.data.items.length,
         lastPage: false,
       });
+      response.data.items.map((item) => {
+        // eslint-disable-next-line no-return-assign
+        return (item.favourite =
+          favourites.find((favourited) => favourited.id === item.id) != null);
+      });
       setDevList(response.data.items);
     } catch (e) {
       setInputLoading(false);
@@ -83,11 +92,32 @@ function Home({navigation}) {
     }
   }, [locationSearch]);
 
-  // useEffect(() => {
-  //   if (locationSearch) {
-  //     handleFindDev();
-  //   }
-  // }, [locationSearch, handleFindDev]);
+  useEffect(() => {
+    const teste = navigation.addListener('focus', async () => {
+      const favourites = JSON.parse(await AsyncStorage.getItem('favourites'));
+
+      const new_devList = devList.map((item) => {
+        const findFavorite = favourites.find(
+          (favourited) => favourited.id === item.id
+        );
+
+        if (findFavorite) {
+          item.favourite = true;
+        } else {
+          item.favourite = false;
+        }
+        return item;
+      });
+      setDevList(new_devList);
+    });
+    return teste;
+  }, [navigation, devList]);
+
+  useEffect(() => {
+    if (locationSearch) {
+      handleFindDev();
+    }
+  }, [locationSearch, handleFindDev]);
 
   async function handleOnEachList() {
     try {
@@ -219,16 +249,20 @@ function Home({navigation}) {
               keyExtractor={(item) => String(item.id)}
               data={devList}
               maxToRenderPerBatch={10}
-              renderItem={({item}) => (
-                <DevListItem
-                  profile={item}
-                  onPress={() =>
-                    navigation.navigate('DetailDev', {
-                      profile: item,
-                    })
-                  }
-                />
-              )}
+              renderItem={({item}) => {
+                console.log('favoritado ', item.favourite);
+                return (
+                  <DevListItem
+                    profile={item}
+                    onPress={() =>
+                      navigation.navigate('DetailDev', {
+                        profile: item,
+                      })
+                    }
+                    favorited={item.favourite}
+                  />
+                );
+              }}
               onEndReachedThreshold={0.1}
               showsVerticalScrollIndicator={false}
               onEndReached={!EndReached && handleOnEachList}
