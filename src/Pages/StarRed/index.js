@@ -13,16 +13,28 @@ import ListItemsContainer from '../../Components/ListItemsContainer';
 import DevListItem from '../../Components/DevListItem';
 
 export default function StarRed({navigation}) {
-  const [favs, setFavs] = useState([]);
+  const [favs, setFavs] = useState();
+  const [allFavs, setAllFavs] = useState([]);
 
   useEffect(() => {
-    const getFavs = async () => {
-      const data = await AsyncStorage.getItem('favourites');
-      setFavs(JSON.parse(data));
-    };
+    const unsubscribe = navigation.addListener('focus', () => {
+      const getFavs = async () => {
+        const data = await AsyncStorage.getItem('favourites');
+        setAllFavs(JSON.parse(data));
+        setFavs(JSON.parse(data));
+      };
 
-    getFavs();
-  }, [favs]);
+      getFavs();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const handleSearch = (search) => {
+    const finded = allFavs.filter((fav) => fav.login.indexOf(search) !== -1);
+
+    setFavs(finded);
+  };
 
   return (
     <AppContainer>
@@ -36,6 +48,7 @@ export default function StarRed({navigation}) {
         <SearchInput
           placeholder="Digite o nome/login do desenvolvedor"
           onlySearch
+          onChangeText={(search) => handleSearch(search)}
         />
         <ListContainer>
           <ListItemsContainer>

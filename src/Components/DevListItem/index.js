@@ -17,7 +17,6 @@ import strings from '../../DefaultStrings/DevItem';
 
 export default function DevListItem({profile, onPress, favorited}) {
   const [animatedScale] = React.useState(new Animated.Value(1));
-  console.log('favorited 2 ', favorited);
   const [heartColor, setHeartColor] = React.useState(
     !favorited ? '#5a54ff' : '#e2264d'
   );

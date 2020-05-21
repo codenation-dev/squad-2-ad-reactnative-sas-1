@@ -250,7 +250,6 @@ function Home({navigation}) {
               data={devList}
               maxToRenderPerBatch={10}
               renderItem={({item}) => {
-                console.log('favoritado ', item.favourite);
                 return (
                   <DevListItem
                     profile={item}
