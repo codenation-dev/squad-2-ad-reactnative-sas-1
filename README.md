@@ -9,12 +9,7 @@
 
 # :computer: Layout
 
-<img width="200" src=".github/assets/login_screen.png">
-<img width="200" src=".github/assets/localization.png">
-<img width="200" src=".github/assets/lista.png">
-<img width="200" src=".github/assets/favotios.png">
-<img width="200" src=".github/assets/qrCode.png">
-<img width="200" src=".github/assets/detalhes.png">
+<img align="center" src=".github/assets/mock.png">
 
 <hr />
 
