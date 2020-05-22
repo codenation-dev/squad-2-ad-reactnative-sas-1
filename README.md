@@ -1,4 +1,3 @@
-# Codenation Dev Finder
 <h1 align="center">
  <img src=".github/assets/devfinder.png">
 </h1>
