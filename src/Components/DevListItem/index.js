@@ -15,7 +15,7 @@ import {
 
 import strings from '../../DefaultStrings/DevItem';
 
-export default function DevListItem({profile, onPress, favorited}) {
+export default function DevListItem({profile, onPress, favorited, onFavorite}) {
   const [animatedScale] = React.useState(new Animated.Value(1));
   const [heartColor, setHeartColor] = React.useState(
     !favorited ? '#5a54ff' : '#e2264d'
@@ -40,27 +40,10 @@ export default function DevListItem({profile, onPress, favorited}) {
     });
   }
 
-  async function handleFav() {
+  function handleFav(prof) {
     animateHeart();
-
-    const favourites =
-      JSON.parse(await AsyncStorage.getItem('favourites')) || [];
-
-    if (favourites.length <= 0) {
-      favourites.push(profile);
-      await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
-    } else {
-      const isFavouriteAlready = favourites.findIndex(
-        (favourite) => favourite.id === profile.id
-      );
-      if (isFavouriteAlready < 0) {
-        favourites.push(profile);
-        await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
-      } else {
-        favourites.splice(isFavouriteAlready, 1);
-        await AsyncStorage.setItem('favourites', JSON.stringify(favourites));
-      }
-    }
+    onFavorite(prof);
+    console.log('fav');
   }
   return (
     <Container onPress={onPress}>
@@ -69,7 +52,7 @@ export default function DevListItem({profile, onPress, favorited}) {
         <Name>{profile.login || strings.defaultUserName}</Name>
         <Username>{profile.login}</Username>
       </ContainerColumn>
-      <Followers onPress={handleFav}>
+      <Followers onPress={() => handleFav(profile)}>
         <Animated.View style={{transform: [{scale: animatedScale}]}}>
           <Icons name="heart" size={20} color={heartColor} />
         </Animated.View>

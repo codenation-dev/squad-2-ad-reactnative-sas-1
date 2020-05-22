@@ -24,7 +24,7 @@ import DevListItem from '../../Components/DevListItem';
 import ListEndComponent from '../../Components/ListEndComponent';
 import ListNotFound from '../../Components/ListNotFound';
 import FigureHome from '../../Components/FigureHome';
-
+import useFavorites from '../../Services/useFavorites';
 import {mapsApi, api} from '../../Services/Api';
 
 const INITIAL_PAGINATION = {
@@ -45,7 +45,7 @@ function Home({navigation}) {
   const [animationLeft] = useState(
     new Animated.Value(-Dimensions.get('window').width)
   );
-
+  const [favs, favorite] = useFavorites();
   const [devList, setDevList] = useState([]);
 
   const [inputLoading, setInputLoading] = useState(true);
@@ -57,12 +57,11 @@ function Home({navigation}) {
   const devListRef = useRef();
 
   const handleFindDev = useCallback(async () => {
+    const favourites =
+      JSON.parse(await AsyncStorage.getItem('favourites')) || [];
     if (!locationSearch) return;
     devListRef.current.scrollToOffset({animated: true, offset: 0});
     Keyboard.dismiss();
-
-    const favourites = JSON.parse(await AsyncStorage.getItem('favourites'));
-
     try {
       setInputLoading(true);
       const response = await api.get(
@@ -78,7 +77,15 @@ function Home({navigation}) {
         perPage: response.data.items.length,
         lastPage: false,
       });
-      setDevList(response.data.items);
+      const newDevList = response.data.items.map((profile) => {
+        const find = favourites.find((f) => f.id === profile.id);
+        profile.favourite = false;
+        if (find) {
+          profile.favourite = true;
+        }
+        return profile;
+      });
+      setDevList(newDevList);
     } catch (e) {
       setInputLoading(false);
       displayErros('Erro na requisição');
@@ -87,26 +94,7 @@ function Home({navigation}) {
     }
   }, [locationSearch]);
 
-  useEffect(() => {
-    const teste = navigation.addListener('focus', async () => {
-      const favourites = JSON.parse(await AsyncStorage.getItem('favourites'));
-
-      const new_devList = devList.map((item) => {
-        const findFavorite = favourites.find(
-          (favourited) => favourited.id === item.id
-        );
-
-        if (findFavorite) {
-          item.favourite = true;
-        } else {
-          item.favourite = false;
-        }
-        return item;
-      });
-      setDevList(new_devList);
-    });
-    return teste;
-  }, [navigation, devList]);
+  useEffect(() => {}, [navigation, devList]);
 
   useEffect(() => {
     if (locationSearch) {
@@ -115,6 +103,8 @@ function Home({navigation}) {
   }, [locationSearch, handleFindDev]);
 
   async function handleOnEachList() {
+    const favourites =
+      JSON.parse(await AsyncStorage.getItem('favourites')) || [];
     try {
       setInputLoading(true);
       const {page} = paginationDetails;
@@ -123,8 +113,17 @@ function Home({navigation}) {
           page: page + 1,
         },
       });
+
+      const newDevList = response.data.items.map((profile) => {
+        const find = favourites.find((f) => f.id === profile.id);
+        profile.favourite = false;
+        if (find) {
+          profile.favourite = true;
+        }
+        return profile;
+      });
       setInputLoading(false);
-      setDevList([...devList, ...response.data.items]);
+      setDevList([...devList, ...newDevList]);
       setPaginationDetails({
         count: response.data.total_count,
         page: page + 1,
@@ -166,7 +165,7 @@ function Home({navigation}) {
   }
 
   const getPosition = useCallback(() => {
-    setInputLoading(false);
+    setInputLoading(true);
 
     const sucesso = ({coords}) =>
       getLocation(coords.latitude, coords.longitude);
@@ -248,6 +247,7 @@ function Home({navigation}) {
                 return (
                   <DevListItem
                     profile={item}
+                    onFavorite={favorite}
                     onPress={() =>
                       navigation.navigate('DetailDev', {
                         profile: item,
