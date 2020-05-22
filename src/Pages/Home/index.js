@@ -78,15 +78,10 @@ function Home({navigation}) {
         perPage: response.data.items.length,
         lastPage: false,
       });
-      response.data.items.map((item) => {
-        // eslint-disable-next-line no-return-assign
-        return (item.favourite =
-          favourites.find((favourited) => favourited.id === item.id) != null);
-      });
       setDevList(response.data.items);
     } catch (e) {
       setInputLoading(false);
-      displayErros('Erro ns requisição');
+      displayErros('Erro na requisição');
       console.log(e);
       console.log(e.response.data);
     }
