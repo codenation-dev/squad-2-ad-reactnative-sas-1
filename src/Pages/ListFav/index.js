@@ -12,15 +12,13 @@ import DevListItem from '../../Components/DevListItem';
 
 import Devs from '../../Components/DevListItem/devs.json';
 
-//O que são essas props e ref, se aplica esse componente?
+// O que são essas props e ref, se aplica esse componente?
 function ListFav(props, ref) {
   return (
     <AppContainer>
       <Header>
         <HeaderTitle>DevFinder Favoritos</HeaderTitle>
-        <HeaderSubtitle>
-          Favoritos
-        </HeaderSubtitle>
+        <HeaderSubtitle>Favoritos</HeaderSubtitle>
       </Header>
       <Container>
         <ListContainer>
@@ -31,7 +29,7 @@ function ListFav(props, ref) {
             <FlatList
               ref={ref}
               keyExtractor={(item) => String(item.id)}
-              data={Devs}// Tá pegando dados do json com os nossos perfis? Como eu vou puxar os favoritos?
+              data={Devs} // Tá pegando dados do json com os nossos perfis? Como eu vou puxar os favoritos?
               renderItem={({item}) => <DevListItem profile={item} />}
               onScrollBeginDrag={() => props.emitter.emit('startDrag')}
               onScrollEndDrag={() => props.emitter.emit('endDrag')}

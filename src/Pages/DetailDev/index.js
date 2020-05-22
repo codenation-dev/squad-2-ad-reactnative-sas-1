@@ -1,12 +1,46 @@
+/* eslint-disable react/jsx-no-undef */
+/* eslint-disable no-return-assign */
 import React from 'react';
-import {ScrollView, View, Text, SafeAreaView} from 'react-native';
+import {ScrollView, View, FlatList, SafeAreaView} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {BackHeader, ButtonBack, TitleDev, ButtonFav} from './styles';
+import {
+  BackHeader,
+  ButtonBack,
+  TitleDev,
+  Avatar,
+  ButtonFav,
+  DetailContainer,
+  DetailProfile,
+  Login,
+  Site,
+  Bio,
+  Repo,
+  RepositoriesContaine,
+  RepoTitle,
+} from './styles';
 import AppContainer from '../../Components/AppContainer';
 
 export default function DetailDev({route, navigation}) {
   const {profile = {oi: 1}} = route.params;
+
+  const [loadedProfile, setLoadProfile] = React.useState({});
+
+  const [repos, setRepos] = React.useState([]);
+
+  React.useEffect(() => {
+    if (profile.url) {
+      fetch(profile.url)
+        .then((response) => response.json())
+        .then(setLoadProfile);
+    }
+
+    fetch(profile.repos_url)
+      .then((response) => response.json())
+      .then(setRepos);
+  }, [profile]);
+
+  console.log(repos);
 
   const data = React.useMemo(() => {
     return Object.entries(profile).reduce(
@@ -27,31 +61,41 @@ export default function DetailDev({route, navigation}) {
             />
           </ButtonBack>
           <TitleDev>{profile.login}</TitleDev>
-          <ButtonFav>
-            <Icon name="star-face" color="#fff" size={25} />
-          </ButtonFav>
+          <ButtonFav />
         </BackHeader>
         <ScrollView>
           <AppContainer>
             {/* pode apagar daqui pra baixo */}
 
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 20,
-              }}>
-              <Text style={{fontWeight: 'bold', fontSize: 30}}>
-                os dados que vem:
-              </Text>
-              <Text style={{fontWeight: 'bold', fontSize: 20}}>
-                o nome do usuário: {profile.login}
-              </Text>
-              <Text>{data}</Text>
-            </View>
+            <DetailContainer>
+              <Avatar source={{uri: profile.avatar_url}} />
 
-            {/* pode apagar daqui pra cima */}
+              <DetailProfile>
+                <Login>{profile.login}</Login>
+                <Site>{loadedProfile.blog || 'Não tem Site'}</Site>
+                <Bio>{loadedProfile.bio || 'Não tem Biografia'}</Bio>
+              </DetailProfile>
+            </DetailContainer>
+            <DetailContainer>
+              <RepositoriesContaine>
+                <FlatList
+                  data={repos}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({item}) => (
+                    <Repo>
+                      <RepoTitle>
+                        <Icon name="archive" color="#555" size={15} />{' '}
+                        {item.name}
+                        <Icon name="text" color="#555" size={15} />
+                        {item.language || '--'}
+                        <Icon name="star-face" color="#555" size={15} />{' '}
+                        {item.watchers_count}
+                      </RepoTitle>
+                    </Repo>
+                  )}
+                />
+              </RepositoriesContaine>
+            </DetailContainer>
           </AppContainer>
         </ScrollView>
       </View>
