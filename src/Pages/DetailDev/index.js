@@ -28,10 +28,15 @@ import {
   RepoStarsCount,
   RepoInfo,
 } from './styles';
+
+import useFavorites from '../../Services/useFavorites';
+
 import AppContainer from '../../Components/AppContainer';
 
 export default function DetailDev({route, navigation}) {
   const {profile = {oi: 1}} = route.params;
+
+  const [favs, favorite, reload] = useFavorites();
 
   const [loadingProfile, setLoadingProfile] = React.useState(true);
   const [loadingRepos, setLoadingRepos] = React.useState(true);
@@ -95,7 +100,11 @@ export default function DetailDev({route, navigation}) {
             />
           </ButtonBack>
           <TitleDev>{profile.login}</TitleDev>
-          <ButtonFav>
+          <ButtonFav
+            onPress={async () => {
+              await favorite(profile);
+              navigation.navigate('StarRed');
+            }}>
             <Icon name="star-face" color="#fff" size={25} />
           </ButtonFav>
         </BackHeader>
