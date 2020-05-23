@@ -45,7 +45,6 @@ function Home({navigation}) {
   const [animationLeft] = useState(
     new Animated.Value(-Dimensions.get('window').width)
   );
-  const [favs, favorite] = useFavorites();
   const [devList, setDevList] = useState([]);
 
   const [inputLoading, setInputLoading] = useState(true);
@@ -247,7 +246,6 @@ function Home({navigation}) {
                 return (
                   <DevListItem
                     profile={item}
-                    onFavorite={favorite}
                     onPress={() =>
                       navigation.navigate('DetailDev', {
                         profile: item,

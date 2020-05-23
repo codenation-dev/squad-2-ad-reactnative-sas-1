@@ -52,12 +52,15 @@ export default function DevListItem({profile, onPress, favorited, onFavorite}) {
         <Name>{profile.login || strings.defaultUserName}</Name>
         <Username>{profile.login}</Username>
       </ContainerColumn>
-      <Followers onPress={() => handleFav(profile)}>
-        <Animated.View style={{transform: [{scale: animatedScale}]}}>
-          <Icons name="heart" size={20} color={heartColor} />
-        </Animated.View>
-        {/* <FollowersCount>{profile.followers}</FollowersCount> */}
-      </Followers>
+
+      {onFavorite && (
+        <Followers onPress={() => handleFav(profile)}>
+          <Animated.View style={{transform: [{scale: animatedScale}]}}>
+            <Icons name="heart" size={20} color={heartColor} />
+          </Animated.View>
+          {/* <FollowersCount>{profile.followers}</FollowersCount> */}
+        </Followers>
+      )}
     </Container>
   );
 }
